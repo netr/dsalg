@@ -17,7 +17,7 @@ func TestNewIntroSorter(t *testing.T) {
 	so := NewIntroSorter(len(nums))
 
 	for i := 0; i < len(nums); i++ {
-		so.DateAppend(nums[i])
+		so.Insert(nums[i])
 	}
 
 	so.Sort()
@@ -38,9 +38,7 @@ func TestNewIntroSorter_ManyItems(t *testing.T) {
 
 	so := NewIntroSorter(len(shuffled))
 
-	for i := 0; i < len(shuffled); i++ {
-		so.DateAppend(shuffled[i])
-	}
+	so.Set(shuffled)
 
 	so.Sort()
 	assert.Equal(t, nums, so.Arr())
@@ -63,9 +61,7 @@ func BenchmarkNewIntroSorter(b *testing.B) {
 
 		so.Reset(len(shuffled))
 
-		for i := 0; i < len(shuffled); i++ {
-			so.DateAppend(shuffled[i])
-		}
+		so.Set(shuffled)
 
 		so.Sort()
 	}

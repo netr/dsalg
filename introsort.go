@@ -16,6 +16,15 @@ func NewIntroSorter(arrLen int) IntroSorter {
 	}
 }
 
+// Sort initializes the sorting algorithm
+func (is *IntroSorter) Sort() {
+	// Initialise the depthLimit as 2*log(length(data))
+	depthLimit := (2 * math.Floor(math.Log(float64(is.len))/
+		math.Log(2)))
+
+	is.sortData(0, is.len-1, int(depthLimit))
+}
+
 func (is *IntroSorter) Reset(arrLen int) {
 	is.arr = make([]int, arrLen)
 	is.len = 0
@@ -25,9 +34,14 @@ func (is *IntroSorter) Arr() []int {
 	return is.arr
 }
 
-func (is *IntroSorter) DateAppend(temp int) {
+func (is *IntroSorter) Insert(temp int) {
 	is.arr[is.len] = temp
 	is.len++
+}
+
+func (is *IntroSorter) Set(data []int) {
+	is.arr = data
+	is.len = len(is.arr)
 }
 
 func (is *IntroSorter) swap(i int, j int) {
@@ -154,15 +168,4 @@ func (is *IntroSorter) sortData(begin, end, depthLimit int) {
 		// call insertion sort
 		is.insertionSort(begin, end)
 	}
-}
-
-// A utility function to begin the
-// Introsort module
-func (is *IntroSorter) Sort() {
-	// Initialise the depthLimit
-	// as 2*log(length(data))
-	depthLimit := (2 * math.Floor(math.Log(float64(is.len))/
-		math.Log(2)))
-
-	is.sortData(0, is.len-1, int(depthLimit))
 }
