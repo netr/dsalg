@@ -3,6 +3,7 @@ package bst
 import (
 	"errors"
 	"fmt"
+	"math"
 )
 
 type Node struct {
@@ -18,7 +19,8 @@ func NewNode(value int) *Node {
 }
 
 type Tree struct {
-	root *Node
+	root        *Node
+	insertIndex int
 }
 
 func NewTree() *Tree {
@@ -28,8 +30,11 @@ func NewTree() *Tree {
 	return t
 }
 
-func (tr *Tree) Insert(value int) {
-	tr.root = tr.insertRecursive(tr.root, value)
+// Insert using recursion: O(n^2)
+func (tr *Tree) Insert(value ...int) {
+	for _, v := range value {
+		tr.root = tr.insertRecursive(tr.root, v)
+	}
 }
 
 func (tr *Tree) insertRecursive(node *Node, value int) *Node {
@@ -130,28 +135,66 @@ func (tr *Tree) leftMostValue(node *Node) int {
 }
 
 func (tr *Tree) deleteRecursive(node *Node, value int) *Node {
+	// fell off or empty tree
 	if node == nil {
 		return node
 	}
 
 	if value < node.value {
-		// recursively
+		// * start recursion
 		node.left = tr.deleteRecursive(node.left, value)
 	} else if value > node.value {
+		// * start recursion
 		node.right = tr.deleteRecursive(node.right, value)
-	} else { // if key is same as root's key, then This is the node to be deleted
-		// node with only one child or no child
+	} else { // * match found, delete it.
+
+		// ! with nodes that have one child, all we need to do is replace the node with its child
 		if node.left == nil {
 			return node.right
 		} else if node.right == nil {
 			return node.left
 		}
 
-		// node with two children: Get the inorder successor (smallest in the right subtree)
+		// ! with nodes with two children, we need to traverse the right tree, and find the left most nodes value
+		// we replace the current node's value with the left most's value since it will be less than the right node's value and still be in order
 		node.value = tr.leftMostValue(node.right)
-		// Delete the inorder successor
+
+		// ! now traverse and delete the node we just swapped
 		node.right = tr.deleteRecursive(node.right, node.value)
 	}
 
 	return node
+}
+
+// InsertFast is an O(n) implementation from: https://www.geeksforgeeks.org/archives/3042
+func (tr *Tree) InsertFast(value ...int) *Node {
+	tr.root = tr.fastConstruct(value)
+	return tr.root
+}
+
+func (tr *Tree) fastConstruct(values []int) *Node {
+	tr.insertIndex = 0
+	return tr.fastConstructUntil(values, values[0], math.MinInt, math.MaxInt, len(values))
+}
+
+func (tr *Tree) fastConstructUntil(values []int, key, min, max, size int) *Node {
+	if tr.insertIndex >= size {
+		return nil
+	}
+
+	var root *Node
+
+	if key > min && key < max {
+		root = NewNode(key)
+		tr.insertIndex++
+
+		if tr.insertIndex < size {
+			root.left = tr.fastConstructUntil(values, values[tr.insertIndex], min, key, size)
+		}
+		if tr.insertIndex < size {
+			root.right = tr.fastConstructUntil(values, values[tr.insertIndex], key, max, size)
+		}
+	}
+
+	return root
 }
